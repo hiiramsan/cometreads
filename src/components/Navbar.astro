@@ -1,0 +1,51 @@
+---
+const { pathname } = Astro.url;
+
+const navLinks = [
+  { name: "books", href: "/books" },
+  { name: "timeline", href: "/timeline" },
+  { name: "upload", href: "/upload" },
+];
+
+const isActive = (path: string) => {
+  if (path === "/" && pathname === "/") return true;
+  if (path !== "/" && pathname.startsWith(path)) return true;
+  return false;
+};
+---
+
+<header class="fixed top-6 left-0 w-full z-50 flex justify-center px-4">
+  <nav
+    class="flex gap-4 items-center
+           px-6 py-3
+           rounded-full
+           bg-white/10 backdrop-blur-xl
+           border border-white/20
+           shadow-[0_8px_32px_rgba(0,0,0,0.3)]
+           text-white"
+  >
+    <p class="font-mono font-bold">hiram books</p>
+    {
+      navLinks.map((link) => (
+        <a
+          href={link.href}
+          class={`px-4 py-1 rounded-full transition-all duration-300 text-sm font-medium
+          ${
+            isActive(link.href)
+              ? "bg-white/20 text-white shadow-inner"
+              : "text-white/60 hover:text-white hover:bg-white/5"
+          }`}
+        >
+          {link.name}
+        </a>
+      ))
+    }
+    <a
+      href="/api/auth/signout"
+      class="p-2 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 transition-all duration-300"
+      aria-label="Logout"
+    >
+      <img src="/logout.svg" alt="Logout" class="w-6 h-6 invert" />
+    </a>
+  </nav>
+</header>

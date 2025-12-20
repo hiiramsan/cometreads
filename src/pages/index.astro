@@ -1,59 +1,11 @@
 ---
-import Layout from "../layouts/Layout.astro";
-import { getCollection, type CollectionEntry } from "astro:content";
-
-const books = await getCollection("books");
-
-export const prerender = true
+import Bookshelf from "../components/Bookshelf.astro";
+import LayoutPublic from "../layouts/LayoutPublic.astro";
+export const prerender = true;
 ---
 
-<Layout title="Home">
-	<main>
-		<h1 class="text-center text-7xl font-extrabold text-white">
-			Hiiramsan<span class="block">Books 📕</span>
-		</h1>
-		<section aria-label="Libros leidos por hiiramsan">
-			<h2 class="mt-20 mb-10 text-4xl font-bold text-center text-white">
-				Libros Leídos
-			</h2>
-			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-				{
-					books.map((book) => {
-						const { title, author, img, pages, description, buy } =
-							book.data;
-						const slug = book.slug;
-
-						return (
-							<article class="flex flex-col">
-								<a
-									href={`/libro/${slug}`}
-									class="mb-4 transition hover:scale-105"
-								>
-									<img
-										transition:name={`img-${slug}`}
-										src={`${img}`}
-										alt={title}
-										class="w-full rounded-lg shadow-lg"
-									/>
-								</a>
-
-								<div class="flex flex-col">
-									<h3 class="mb-2 text-xl font-bold leading-tight text-white" transition:name={`title-${title}`}>
-										{title}
-									</h3>
-
-									<p class="mb-3 text-sm text-gray-400 line-clamp-3">
-										{description}
-									</p>
-									<span class="text-xs text-gray-500">
-										{pages} paginas{" "}
-									</span>
-								</div>
-							</article>
-						);
-					})
-				}
-			</div>
-		</section>
-	</main>
-</Layout>
+<LayoutPublic title="hiram books">
+	<div class="min-h-screen w-full relative flex flex-col items-center justify-center gap-6">
+		<a href="/login" class="text-white p-2 bg-blue-600 rounded-md">start</a>
+	</div>
+</LayoutPublic>

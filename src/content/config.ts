@@ -7,11 +7,14 @@ const books = defineCollection({
         author: z.string(),
         img: z.string(),
         pages: z.number().min(1),
-        description: z.string(),
-        buy: z.object({
-            mexico: z.string().optional(),
-            usa: z.string().optional(),
+        review: z.string(),
+        startDate: z.string().refine((date) => !isNaN(Date.parse(date)), {
+            message: "Invalid date format",
         }),
+        endDate: z.string().refine((date) => !isNaN(Date.parse(date)), {
+            message: "Invalid date format",
+        }),
+        status: z.enum(["reading", "completed", "plan to read"]),
     })
 })
 

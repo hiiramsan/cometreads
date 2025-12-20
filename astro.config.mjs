@@ -15,8 +15,8 @@ export default defineConfig({
 
   env: {
     schema: {
-      SHOW_BUY_BUTTON: envField.boolean({ context: 'server', access: 'public' }),
-      SCORE_API_ENDPOINT: envField.string({ context: 'server', access: 'public'})
+      SUPABASE_URL: envField.string({ context: 'server', access: 'public' }),
+      SUPABASE_KEY: envField.string({ context: 'server', access: 'public' })
     }
   },
 

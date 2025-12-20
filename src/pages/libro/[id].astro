@@ -1,71 +1,68 @@
 ---
-import { getCollection } from "astro:content";
-import Layout from "../../layouts/Layout.astro";
-import type { CollectionEntry } from "astro:content";
-import AmazonLogo from "../../components/AmazonLogo.astro";
-import { SHOW_BUY_BUTTON } from "astro:env/server";
-import BookScore from "../../components/BookScore.astro";
+export const prerender = false;
 
-export async function getStaticPaths() {
-    const books = await getCollection("books");
+import LayoutApp from "../../layouts/LayoutApp.astro";
+import { supabase } from "../../lib/supabase";
 
-    return books.map((book) => ({
-        params: { id: book.slug },
-        props: { book },
-    }));
+// 1. Obtenemos el ID de los parámetros de la URL
+const { id } = Astro.params;
+
+// 2. Si no hay ID, redirigimos (opcional)
+if (!id) {
+  return Astro.redirect("/dashboard");
 }
 
-const { book } = Astro.props as {
-    book: CollectionEntry<"books">;
-};
-const { data, slug } = book;
-const { title, author, img, pages, description, buy } = data;
-const { Content } = await book.render();
+// 3. Consultamos el libro específico en Supabase
+const { data: book, error } = await supabase
+  .from("books")
+  .select("*")
+  .eq("id", id)
+  .single(); // .single() porque solo esperamos un resultado
 
-export const prerender = true
+// 4. Si el libro no existe o hay error, manejamos el 404
+if (error || !book) {
+  return Astro.redirect("/404");
+}
+
+const { title, author, cover_url, pages, review, status } = book;
 ---
 
-<Layout title={`Book Details - ${title}`}>
-    <div class="flex gap-12">
-        <aside class="flex flex-col items-center gap-4">
-            <a href="/" class="hover:underline opacity-70 text-white"
-                >← Regresar al inicio</a
-            >
-            <img
-                src={img}
-                alt={title}
-                class="rounded w-96 h-auto"
-                transition:name={`img-${book.slug}`}
-            />
-            <BookScore server:defer id={slug}>
-                <span slot="fallback" class="text-xs opacity-70 text-white">Loading...</span>
-            </BookScore>
-            {
-                SHOW_BUY_BUTTON && (
-                    <a
-                        href={book.data.buy.mexico}
-                        title="Comprar libro"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="text-balance inline-flex gap-2 items-center bg-yellow-400 hover:bg-yellow-500 actuve:bg-yellow-600 text-black font-bold py-2 px-4 rounded-lg border border-yellow-500 transition duration-200 ease-in-out hover:scale-105 justify-center text-center"
-                    >
-                        Comprar en Amazon Mexico
-                        <AmazonLogo />
-                    </a>
-                )
-            }
-        </aside>
-        <main>
-            <h1
-                class="text-white text-2xl font-bold mb-4"
-                transition:name={`title-${title}`}
-            >
-                {title}
-            </h1>
-            <div class="prose prose-invert">
-                <Content />
-            </div>
-        </main>
-    </div>
-</Layout>
+<LayoutApp title={`${title} | My Bookshelf`}>
+  <div class="flex flex-col md:flex-row gap-12 mt-8">
+    
+    <aside class="w-full md:w-1/3 flex flex-col gap-4">
+      <img 
+        transition:name={`img-${id}`}
+        src={cover_url} 
+        alt={title} 
+        class="rounded-2xl shadow-2xl w-full object-cover aspect-[2/3] border border-white/10"
+      />
+      <div class="flex justify-between items-center px-2">
+        <span class="text-sm text-gray-400">{pages} páginas</span>
+        <span class={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-tighter ${
+          status === 'reading' ? 'bg-blue-500/20 text-blue-400' : 'bg-green-500/20 text-green-400'
+        }`}>
+          {status}
+        </span>
+      </div>
+    </aside>
 
+    <main class="flex-1">
+      <h1 
+        transition:name={`title-${id}`}
+        class="text-5xl font-black mb-4"
+      >
+        {title}
+      </h1>
+      <p class="text-2xl text-white/60 mb-8 italic">{author}</p>
+      
+      <div class="prose prose-invert max-w-none">
+        <h2 class="text-xl font-bold mb-4 text-white/80">Mi reseña</h2>
+        <p class="text-gray-300 leading-relaxed text-lg">
+          {review || "Aún no has escrito una review para este libro."}
+        </p>
+      </div>
+    </main>
+
+  </div>
+</LayoutApp>
