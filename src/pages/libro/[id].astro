@@ -1,0 +1,71 @@
+---
+import { getCollection } from "astro:content";
+import Layout from "../../layouts/Layout.astro";
+import type { CollectionEntry } from "astro:content";
+import AmazonLogo from "../../components/AmazonLogo.astro";
+import { SHOW_BUY_BUTTON } from "astro:env/server";
+import BookScore from "../../components/BookScore.astro";
+
+export async function getStaticPaths() {
+    const books = await getCollection("books");
+
+    return books.map((book) => ({
+        params: { id: book.slug },
+        props: { book },
+    }));
+}
+
+const { book } = Astro.props as {
+    book: CollectionEntry<"books">;
+};
+const { data, slug } = book;
+const { title, author, img, pages, description, buy } = data;
+const { Content } = await book.render();
+
+export const prerender = true
+---
+
+<Layout title={`Book Details - ${title}`}>
+    <div class="flex gap-12">
+        <aside class="flex flex-col items-center gap-4">
+            <a href="/" class="hover:underline opacity-70 text-white"
+                >← Regresar al inicio</a
+            >
+            <img
+                src={img}
+                alt={title}
+                class="rounded w-96 h-auto"
+                transition:name={`img-${book.slug}`}
+            />
+            <BookScore server:defer id={slug}>
+                <span slot="fallback" class="text-xs opacity-70 text-white">Loading...</span>
+            </BookScore>
+            {
+                SHOW_BUY_BUTTON && (
+                    <a
+                        href={book.data.buy.mexico}
+                        title="Comprar libro"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="text-balance inline-flex gap-2 items-center bg-yellow-400 hover:bg-yellow-500 actuve:bg-yellow-600 text-black font-bold py-2 px-4 rounded-lg border border-yellow-500 transition duration-200 ease-in-out hover:scale-105 justify-center text-center"
+                    >
+                        Comprar en Amazon Mexico
+                        <AmazonLogo />
+                    </a>
+                )
+            }
+        </aside>
+        <main>
+            <h1
+                class="text-white text-2xl font-bold mb-4"
+                transition:name={`title-${title}`}
+            >
+                {title}
+            </h1>
+            <div class="prose prose-invert">
+                <Content />
+            </div>
+        </main>
+    </div>
+</Layout>
+
