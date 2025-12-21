@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@astrojs/vercel": "^9.0.2",
+    "@fontsource/dm-serif-text": "^5.2.8",
     "@supabase/supabase-js": "^2.89.0",
     "@tailwindcss/vite": "^4.1.18",
     "astro": "5.0.0-beta.12",

@@ -11,6 +11,9 @@ importers:
       '@astrojs/vercel':
         specifier: ^9.0.2
         version: 9.0.2(astro@5.0.0-beta.12(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.53.5)(typescript@5.9.3))(rollup@4.53.5)
+      '@fontsource/dm-serif-text':
+        specifier: ^5.2.8
+        version: 5.2.8
       '@supabase/supabase-js':
         specifier: ^2.89.0
         version: 2.89.0
@@ -368,6 +371,9 @@ packages:
     engines: {node: '>=18'}
     cpu: [x64]
     os: [win32]
+
+  '@fontsource/dm-serif-text@5.2.8':
+    resolution: {integrity: sha512-Zbo9UKc/9cWWTTGleFk/oL9TQWHcEA8IXLqGaVvWC90Q5GqOe7DdPmU38hIF7KQqDmxuk2sT2gJV5raYBeu1VA==}
 
   '@img/sharp-darwin-arm64@0.33.5':
     resolution: {integrity: sha512-UT4p+iz/2H4twwAoLCqfA9UH5pI6DggwKEGuaPy7nCVQ8ZsiY5PIcrRvD1DzuY3qYL07NtIQcWnBSY/heikIFQ==}
@@ -2295,6 +2301,8 @@ snapshots:
 
   '@esbuild/win32-x64@0.25.12':
     optional: true
+
+  '@fontsource/dm-serif-text@5.2.8': {}
 
   '@img/sharp-darwin-arm64@0.33.5':
     optionalDependencies:
