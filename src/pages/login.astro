@@ -48,9 +48,9 @@ import "@fontsource/dm-serif-text";
         <div class="w-full max-w-xs">
           <div class="text-center mb-8">
             <div class="flex justify-center mb-6">
-              <div class="flex items-center bg-black p-4 rounded-3xl">
+              <a href="/" class="flex items-center bg-black p-4 rounded-3xl">
                   <img src="logo.png" alt="hibookshelf logo" class="w-24 h-auto" />
-              </div>
+              </a>
             </div>
 
             <h2 class="text-3xl font-serif text-gray-900 mb-2">
@@ -62,9 +62,9 @@ import "@fontsource/dm-serif-text";
           </div>
 
           <div class="space-y-4">
-            <!-- GitHub Button -->
+            <!-- GitHub -->
             <a
-              href="/api/auth/signin"
+              href="/api/auth/signin?provider=github"
               class="flex items-center justify-center gap-3 w-full bg-black text-white h-12 rounded-xl text-sm font-medium hover:bg-gray-900 transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 duration-200"
             >
               <svg
@@ -89,9 +89,9 @@ import "@fontsource/dm-serif-text";
               <div class="flex-grow border-t border-gray-200"></div>
             </div>
 
-            <button
-              class="flex items-center justify-center gap-3 w-full bg-white border border-gray-200 text-gray-700 h-12 rounded-xl text-sm font-medium hover:bg-gray-50 transition-colors"
-              disabled
+            <a
+              class="flex items-center justify-center gap-3 w-full bg-white border border-gray-200 text-gray-700 h-12 rounded-xl text-sm font-medium hover:bg-gray-50 transition-colors transform hover:-translate-y-0.5 duration-200"
+              href="/api/auth/signin?provider=google"
             >
               <svg
                 class="w-4 h-4"
@@ -112,7 +112,7 @@ import "@fontsource/dm-serif-text";
                   fill="#EA4335"></path>
               </svg>
               Sign In with Google
-            </button>
+            </a>
           </div>
         </div>
       </div>
