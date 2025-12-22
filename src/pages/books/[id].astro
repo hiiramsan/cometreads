@@ -1,0 +1,524 @@
+---
+export const prerender = false;
+
+import LayoutApp from "../../layouts/LayoutApp.astro";
+import { supabase } from "../../lib/supabase";
+
+const { id } = Astro.params;
+
+const fetchBook = async () => {
+  if (!id) {
+    window.location.href = "/books";
+    return;
+  }
+
+  const { data: book, error } = await supabase
+    .from("books")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (error || !book) {
+    window.location.href = "/404";
+    return;
+  }
+
+  return book;
+};
+
+const bookPromise = fetchBook();
+const book = await bookPromise;
+
+const {
+  title,
+  author,
+  cover_url,
+  pages,
+  start_date,
+  end_date,
+  review,
+  status,
+} = book;
+---
+
+<LayoutApp title={`${title} | CometReads`}>
+  <div class="relative z-10 w-full max-w-7xl mx-auto px-6 py-10 md:py-20">
+    <div class="flex flex-col md:flex-row gap-16 items-start">
+      <aside class="w-full md:w-72 shrink-0 mx-auto md:mx-0">
+        <div class="relative group">
+          <img
+            transition:name={`img-${id}`}
+            src={cover_url || "/placeholder.svg"}
+            alt={title}
+            class="rounded-2xl w-full h-auto object-cover
+                   border border-white/20
+                   shadow-[0_0_50px_rgba(255,255,255,0.15)]
+                   transition-transform duration-500 group-hover:scale-[1.02]"
+          />
+        </div>
+
+        <div
+          class="mt-6 flex justify-between items-center text-white/40 text-xs font-medium px-1"
+        >
+          <span class="flex items-center gap-1.5">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="w-4 h-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+              ></path>
+            </svg>
+            {pages} páginas
+          </span>
+          <span
+            class="uppercase tracking-[0.15em] bg-white/10 px-2.5 py-1 rounded-md text-[9px] border border-white/5"
+          >
+            {status}
+          </span>
+        </div>
+
+        <div class="mt-4 flex gap-3">
+          <button id="edit-btn" class="flex-1 bg-white/10 hover:bg-white/20 text-white py-2.5 rounded-xl transition text-sm font-medium border border-white/10 cursor-pointer">
+            Edit
+          </button>
+          <button id="delete-btn" class="flex-1 bg-red-500/10 hover:bg-red-500/20 text-red-200 py-2.5 rounded-xl transition text-sm font-medium border border-red-500/20 cursor-pointer">
+            Delete
+          </button>
+        </div>
+      </aside>
+
+      <main class="flex-1">
+        <header class="mb-6">
+          <h1
+            class="text-white text-5xl md:text-5xl font-serif font-bold mb-2 leading-tight tracking-tight"
+          >
+            {title}
+          </h1>
+          <p class="text-white/50 text-2xl md:text-2xl font-light italic">
+            {author}
+          </p>
+        </header>
+
+        <div class="max-w-2xl">
+          <div class="h-px w-12 bg-white/20 mb-6"></div>
+
+          <section class="mb-12 max-w-2xl">
+            <h2
+              class="text-white/20 text-[10px] uppercase tracking-[0.4em] font-black mb-6"
+            >
+              Reading Timeline
+            </h2>
+
+            <div class="space-y-4 mb-6">
+              {
+                start_date && (
+                  <div class="flex items-center gap-3 text-sm">
+                    <span class="text-white/40 w-24">Started:</span>
+                    <span class="text-white/80">
+                      {new Date(start_date).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
+                    </span>
+                  </div>
+                )
+              }
+
+              {
+                end_date && (
+                  <div class="flex items-center gap-3 text-sm">
+                    <span class="text-white/40 w-24">Finished:</span>
+                    <span class="text-white/80">
+                      {new Date(end_date).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
+                    </span>
+                  </div>
+                )
+              }
+            </div>
+
+            <div class="flex items-center gap-3">
+              {
+                status === "plan to read" && (
+                  <button
+                    id="quick-start-reading"
+                    class="bg-white text-black text-xs font-bold uppercase tracking-wider px-6 py-2.5 rounded-lg cursor-pointer hover:bg-gray-200 transition"
+                  >
+                    Start Reading
+                  </button>
+                )
+              }
+
+              {
+                status === "reading" && (
+                  <button
+                    id="quick-mark-completed"
+                    class="bg-white text-black text-xs font-bold uppercase tracking-wider px-6 py-2.5 rounded-lg cursor-pointer hover:bg-gray-200 transition"
+                  >
+                    Mark as Completed
+                  </button>
+                )
+              }
+
+              <button
+                id="open-edit-modal"
+                class="text-xs text-white/60 hover:text-white transition underline underline-offset-4 cursor-pointer"
+              >
+                Edit status & dates
+              </button>
+            </div>
+          </section>
+
+          <h2
+            class="text-white/20 text-[10px] uppercase tracking-[0.4em] font-black mb-6"
+          >
+            My review / comments
+          </h2>
+
+          <form action={`/api/books/${id}`} method="POST" class="relative group">
+            <div class="absolute left-0 top-0 bottom-0 w-[1px] bg-white/10 group-focus-within:bg-white/30 transition-colors"></div>
+            <textarea
+              name="review"
+              rows="4"
+              class="w-full bg-transparent text-gray-300 text-md md:text-lg leading-relaxed italic font-light pl-8 border-none focus:ring-0 focus:outline-none resize-none placeholder:text-white/20"
+              placeholder={`Write your thoughts about ${title.trim()}...`}
+            >{review}</textarea>
+            
+            <div class="flex justify-end mt-2 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300">
+              <button type="submit" class="bg-white text-black text-xs font-bold uppercase tracking-wider px-6 py-2 rounded-lg cursor-pointer hover:bg-gray-200 transition shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                Save Review
+              </button>
+            </div>
+          </form>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div
+    id="status-modal"
+    class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-sm"
+  >
+    <div
+      class="relative w-full max-w-md mx-4 bg-[#1a1a1a] border border-white/10 rounded-2xl shadow-2xl"
+    >
+      <div class="p-6">
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="text-white text-xl font-bold">Update Reading Status</h3>
+          <button
+            id="close-modal"
+            class="text-white/40 hover:text-white transition"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="w-6 h-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+
+        <form id="status-form" class="space-y-6">
+          <div class="flex flex-col gap-2">
+            <label class="text-sm text-white/60 font-medium">Status</label>
+            <select
+              id="modal-status"
+              name="status"
+              class="bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-white/30 cursor-pointer"
+            >
+              <option value="plan to read" selected={status === "plan to read"}>
+                Plan to read
+              </option>
+              <option value="reading" selected={status === "reading"}>
+                Reading
+              </option>
+              <option value="completed" selected={status === "completed"}>
+                Completed
+              </option>
+            </select>
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <label class="text-sm text-white/60 font-medium">Start date</label>
+            <input
+              type="date"
+              id="modal-start-date"
+              name="start_date"
+              value={start_date}
+              class="bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-white/30"
+            />
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <label class="text-sm text-white/60 font-medium">End date</label>
+            <input
+              type="date"
+              id="modal-end-date"
+              name="end_date"
+              value={end_date}
+              class="bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-white/30"
+            />
+          </div>
+
+          <div class="flex gap-3 pt-2">
+            <button
+              type="submit"
+              class="flex-1 bg-white text-black text-sm font-bold uppercase tracking-wider px-6 py-3 rounded-lg cursor-pointer hover:bg-gray-200 transition"
+            >
+              Save Changes
+            </button>
+            <button
+              type="button"
+              id="cancel-modal"
+              class="px-6 py-3 text-sm text-white/60 hover:text-white transition"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <!-- Edit Modal -->
+  <div id="edit-modal" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" id="edit-modal-bg"></div>
+    <div class="absolute inset-0 flex items-center justify-center p-4">
+      <div class="bg-white/5 backdrop-blur-2xl w-full max-w-2xl rounded-3xl border border-white/10 shadow-2xl max-h-[90vh] overflow-y-auto">
+        <div class="p-6 md:p-8">
+          <h2 class="text-2xl font-bold text-white mb-6">Edit Book</h2>
+          <form action={`/api/books/${id}`} method="POST" class="grid grid-cols-1 gap-6">
+            
+            <div class="flex flex-col gap-2">
+              <label class="text-white/60 text-sm ml-1">Book title</label>
+              <input name="title" type="text" required value={title} class="bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition" />
+            </div>
+      
+            <div class="flex flex-col gap-2">
+              <label class="text-white/60 text-sm ml-1">Author</label>
+              <input name="author" type="text" required value={author} class="bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition" />
+            </div>
+      
+            <div class="grid grid-cols-2 gap-4">
+              <div class="flex flex-col gap-2">
+                <label class="text-white/60 text-sm ml-1">Pages</label>
+                <input name="pages" type="number" value={pages} class="bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition" />
+              </div>
+              <div class="flex flex-col gap-2">
+                <label class="text-white/60 text-sm ml-1">Status</label>
+                <select name="status" class="bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                  <option value="plan to read" selected={status === 'plan to read'} class="bg-gray-900">Plan to read</option>
+                  <option value="reading" selected={status === 'reading'} class="bg-gray-900">Reading</option>
+                  <option value="completed" selected={status === 'completed'} class="bg-gray-900">Completed</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div class="flex flex-col gap-2">
+                  <label class="text-white/60 text-sm ml-1">Start Date</label>
+                  <input name="start_date" type="date" value={start_date} class="bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition" />
+                </div>
+                <div class="flex flex-col gap-2">
+                  <label class="text-white/60 text-sm ml-1">End Date</label>
+                  <input name="end_date" type="date" value={end_date} class="bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition" />
+                </div>
+            </div>
+      
+            <div class="flex flex-col gap-2">
+              <label class="text-white/60 text-sm ml-1">Cover URL (Image)</label>
+              <input name="img" type="url" value={cover_url} class="bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition" />
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <label class="text-white/60 text-sm ml-1">Review</label>
+                <textarea name="review" rows="4" class="bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition">{review}</textarea>
+            </div>
+      
+            <div class="flex gap-4 mt-2">
+                <button type="button" id="cancel-edit" class="flex-1 bg-white/5 hover:bg-white/10 text-white py-3 rounded-xl transition cursor-pointer">Cancel</button>
+                <button type="submit" class="flex-1 bg-white text-black font-bold py-3 rounded-xl hover:bg-white/80 transition shadow-lg cursor-pointer hover:shadow-xl">
+                  Save Changes
+                </button>
+            </div>
+      
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Modal -->
+  <div id="delete-modal" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" id="delete-modal-bg"></div>
+    <div class="absolute inset-0 flex items-center justify-center p-4">
+      <div class="bg-white/5 backdrop-blur-2xl w-full max-w-md rounded-3xl border border-white/10 shadow-2xl p-6 md:p-8 text-center">
+        <h2 class="text-2xl font-bold text-white mb-2">Delete Book?</h2>
+        <p class="text-white/60 mb-8">This action cannot be undone. Are you sure you want to delete this book?</p>
+        <div class="flex gap-4">
+          <button id="cancel-delete" class="flex-1 bg-white/5 hover:bg-white/10 text-white py-3 rounded-xl transition cursor-pointer">Cancel</button>
+          <button id="confirm-delete" class="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-3 rounded-xl transition cursor-pointer">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script define:vars={{ id }}>
+    // Edit Modal
+    const editBtn = document.getElementById('edit-btn');
+    const editModal = document.getElementById('edit-modal');
+    const cancelEdit = document.getElementById('cancel-edit');
+    const editModalBg = document.getElementById('edit-modal-bg');
+  
+    const toggleEditModal = () => {
+      editModal.classList.toggle('hidden');
+    };
+  
+    editBtn?.addEventListener('click', toggleEditModal);
+    cancelEdit?.addEventListener('click', toggleEditModal);
+    editModalBg?.addEventListener('click', toggleEditModal);
+  
+    // Delete Modal
+    const deleteBtn = document.getElementById('delete-btn');
+    const deleteModal = document.getElementById('delete-modal');
+    const cancelDelete = document.getElementById('cancel-delete');
+    const confirmDelete = document.getElementById('confirm-delete');
+    const deleteModalBg = document.getElementById('delete-modal-bg');
+  
+    const toggleDeleteModal = () => {
+      deleteModal.classList.toggle('hidden');
+    };
+  
+    deleteBtn?.addEventListener('click', toggleDeleteModal);
+    cancelDelete?.addEventListener('click', toggleDeleteModal);
+    deleteModalBg?.addEventListener('click', toggleDeleteModal);
+  
+    confirmDelete?.addEventListener('click', async () => {
+      try {
+        const res = await fetch(`/api/books/${id}`, {
+          method: 'DELETE',
+        });
+        if (res.ok) {
+          window.location.href = '/books';
+        } else {
+          alert('Error deleting book');
+        }
+      } catch (e) {
+        console.error(e);
+        alert('Error deleting book');
+      }
+    });
+  </script>
+</LayoutApp>
+
+<script define:vars={{ bookId: id }}>
+  const modal = document.getElementById("status-modal");
+  const openModalBtn = document.getElementById("open-edit-modal");
+  const closeModalBtn = document.getElementById("close-modal");
+  const cancelModalBtn = document.getElementById("cancel-modal");
+  const statusForm = document.getElementById("status-form");
+
+  const quickStartBtn = document.getElementById("quick-start-reading");
+  const quickCompleteBtn = document.getElementById("quick-mark-completed");
+
+  const modalStatus = document.getElementById("modal-status");
+  const modalStartDate = document.getElementById("modal-start-date");
+  const modalEndDate = document.getElementById("modal-end-date");
+
+  function openModal() {
+    modal?.classList.remove("hidden");
+    modal?.classList.add("flex");
+  }
+
+  function closeModal() {
+    modal?.classList.add("hidden");
+    modal?.classList.remove("flex");
+  }
+
+  openModalBtn?.addEventListener("click", openModal);
+  closeModalBtn?.addEventListener("click", closeModal);
+  cancelModalBtn?.addEventListener("click", closeModal);
+
+  modal?.addEventListener("click", (e) => {
+    if (e.target === modal) {
+      closeModal();
+    }
+  });
+
+  quickStartBtn?.addEventListener("click", () => {
+    const today = new Date().toISOString().split("T")[0];
+    modalStatus.value = "reading";
+    modalStartDate.value = today;
+    openModal();
+  });
+
+  quickCompleteBtn?.addEventListener("click", async () => {
+    const today = new Date().toISOString().split("T")[0];
+
+    try {
+      const formData = new FormData();
+      formData.append("status", "completed");
+      formData.append("end_date", today);
+      if (modalStartDate.value) {
+        formData.append("start_date", modalStartDate.value);
+      }
+
+      const response = await fetch(`/api/books/${bookId}`, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (response.ok) {
+        window.location.reload();
+      } else {
+        console.error("Failed to update book status");
+      }
+    } catch (error) {
+      console.error("Error updating book:", error);
+    }
+  });
+
+  statusForm?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(statusForm);
+
+    try {
+      const response = await fetch(`/api/books/${bookId}`, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (response.ok) {
+        window.location.reload();
+      } else {
+        console.error("Failed to update book status");
+      }
+    } catch (error) {
+      console.error("Error updating book:", error);
+    }
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      closeModal();
+    }
+  });
+</script>
