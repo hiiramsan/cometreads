@@ -17,48 +17,53 @@ if (error) {
 }
 ---
 
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16">
+<div class="flex flex-wrap gap-16 items-start">
+
     {
         books?.map((book) => {
-            const { id, title, author, cover_url, pages } = book;
+            const { id, title, author, cover_url, status } = book;
 
             return (
-                <article class="flex flex-col group">
+                <article class="flex flex-col items-start">
                     <a
                         href={`/libro/${id}`}
-                        class="mb-4 transition-all duration-300 hover:scale-105"
+                        class="inline-block transition-transform duration-300 hover:scale-105"
                     >
                         <img
                             transition:name={`img-${id}`}
-                            src={cover_url || '/placeholder-book.jpg'} 
+                            src={cover_url || "/placeholder-book.jpg"}
                             alt={title}
-                            class="w-full aspect-2/3 object-cover rounded-lg shadow-lg border border-white/10"
+                            class="w-auto h-64 aspect-2/3 object-cover rounded-lg shadow-lg border border-white/10"
                         />
-                    </a>
 
-                    <div class="flex flex-col">
-                        <h3
-                            class="mb-1 text-lg font-bold leading-tight text-white group-hover:text-blue-400 transition"
-                            transition:name={`title-${id}`}
-                        >
-                            {title}
-                        </h3>
-                        <p class="text-sm text-gray-400 mb-2">{author}</p>
-                        <div class="flex items-center gap-2">
-                             <span class="text-[10px] bg-white/10 px-2 py-1 rounded text-gray-400 uppercase tracking-wider">
-                                {pages} páginas
+                        <div class="flex flex-col gap-2 mt-3">
+                            <h3 class="text-lg font-md font-serif leading-tight text-white transition">
+                                {title}
+                            </h3>
+                            <p class="text-sm text-gray-400 ">{author}</p>
+                            <span class="inline-block w-fit text-[10px] bg-white/10 px-2 py-2 rounded text-gray-400 uppercase tracking-wider">
+                                {status}
                             </span>
                         </div>
-                    </div>
+                    </a>
                 </article>
             );
         })
     }
 
-    {books?.length === 0 && (
-        <div class="col-span-full text-center py-20 border-2 border-dashed border-white/10 rounded-3xl">
-            <p class="text-gray-500">No books in the shelf yet. Start by uploading one!</p>
-            <a href="/upload" class="text-blue-400 hover:underline mt-2 inline-block">Add book</a>
-        </div>
-    )}
+    {
+        books?.length === 0 && (
+            <div class="col-span-full text-center py-20 border-2 border-dashed border-white/10 rounded-3xl">
+                <p class="text-gray-500">
+                    No books in the shelf yet. Start by uploading one!
+                </p>
+                <a
+                    href="/upload"
+                    class="text-blue-400 hover:underline mt-2 inline-block"
+                >
+                    Add book
+                </a>
+            </div>
+        )
+    }
 </div>
