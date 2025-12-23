@@ -22,7 +22,6 @@ export const POST: APIRoute = async ({ params, cookies, request, redirect }) => 
 
   const payload: any = {};
 
-  // Only add fields if they exist in the form data
   if (formData.has("title")) payload.title = formData.get("title");
   if (formData.has("author")) payload.author = formData.get("author");
   if (formData.has("pages")) payload.pages = parseInt(formData.get("pages") as string);

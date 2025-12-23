@@ -17,12 +17,28 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
         // 2. logica de insertar libro
         const formData = await request.formData();
 
+        const title = formData.get("title")?.toString().trim();
+        const author = formData.get("author")?.toString().trim();
+        const pagesStr = formData.get("pages")?.toString();
+        const pages = pagesStr ? parseInt(pagesStr) : 0;
+
+        // Validaciones
+        if (!title || title.length > 100) {
+            return new Response(JSON.stringify({ error: "Title is required and must be less than 100 characters" }), { status: 400 });
+        }
+        if (!author || author.length > 50) {
+            return new Response(JSON.stringify({ error: "Author is required and must be less than 50 characters" }), { status: 400 });
+        }
+        if (pages < 0) {
+             return new Response(JSON.stringify({ error: "Pages cannot be negative" }), { status: 400 });
+        }
+
         const payload = {
-            title: formData.get("title"),
+            title,
             user_id: user.id,
-            author: formData.get("author"),
+            author,
             cover_url: formData.get("img"),
-            pages: formData.get("pages") ? parseInt(formData.get("pages") as string) : 0,
+            pages,
             review: formData.get("review"),
             start_date: formData.get("startDate") || null,
             end_date: formData.get("endDate") || null,

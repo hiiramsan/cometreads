@@ -15,12 +15,12 @@ if (!accessToken) {
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
 		<title>{Astro.props.title}</title>
+		<link rel="icon" href="/tabicon.png" />
 		<ClientRouter />
 	</head>
-	<body class="min-h-screen relative"> <!--aqui habia overflow-x-hidden -->
+	<body class="min-h-screen relative overflow-x-hidden">
 		<div
 			class="absolute inset-0 z-0"
 			style={{
@@ -30,7 +30,7 @@ if (!accessToken) {
 		>
 		</div>
 		<Navbar />
-		<main class="pt-26">
+		<main class="relative z-10 pt-28">
 			<slot />
 		</main>
 	</body>

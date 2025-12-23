@@ -17,17 +17,81 @@ if (error) {
 }
 ---
 
-<div class="flex flex-wrap gap-16 items-start">
+<div class="flex flex-col lg:flex-row gap-4 relative items-start">
+    
+    <!-- Filters Sidebar -->
+    <aside class="w-full lg:w-56 shrink-0 lg:sticky lg:top-28 order-1 lg:order-2">
+        <div class="bg-white/10 backdrop-blur-xl border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.3)] rounded-2xl p-4 text-white">
+            <h3 class="text-sm font-serif font-bold mb-3 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-white/60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+                Filters
+            </h3>
+
+            <div class="space-y-6">
+                <!-- Status Filter -->
+                <div class="space-y-2">
+                    <label class="text-[10px] uppercase tracking-widest text-white/40 font-bold ml-1">Status</label>
+                    <div class="flex flex-col gap-1.5">
+                        <label class="group relative flex items-center gap-2.5 p-2.5 rounded-lg bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition-all duration-300 has-[:checked]:bg-blue-600/20 has-[:checked]:border-blue-500/50">
+                            <input type="radio" name="status" value="all" checked class="peer sr-only" />
+                            <div class="w-3.5 h-3.5 rounded-full border-2 border-white/20 peer-checked:border-blue-400 peer-checked:bg-blue-400 transition-all"></div>
+                            <span class="text-xs font-medium text-white/80 peer-checked:text-white">All Books</span>
+                        </label>
+                        
+                        <label class="group relative flex items-center gap-2.5 p-2.5 rounded-lg bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition-all duration-300 has-[:checked]:bg-blue-600/20 has-[:checked]:border-blue-500/50">
+                            <input type="radio" name="status" value="reading" class="peer sr-only" />
+                            <div class="w-3.5 h-3.5 rounded-full border-2 border-white/20 peer-checked:border-blue-400 peer-checked:bg-blue-400 transition-all"></div>
+                            <span class="text-xs font-medium text-white/80 peer-checked:text-white">Reading</span>
+                        </label>
+
+                        <label class="group relative flex items-center gap-2.5 p-2.5 rounded-lg bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition-all duration-300 has-[:checked]:bg-blue-600/20 has-[:checked]:border-blue-500/50">
+                            <input type="radio" name="status" value="completed" class="peer sr-only" />
+                            <div class="w-3.5 h-3.5 rounded-full border-2 border-white/20 peer-checked:border-blue-400 peer-checked:bg-blue-400 transition-all"></div>
+                            <span class="text-xs font-medium text-white/80 peer-checked:text-white">Completed</span>
+                        </label>
+
+                        <label class="group relative flex items-center gap-2.5 p-2.5 rounded-lg bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition-all duration-300 has-[:checked]:bg-blue-600/20 has-[:checked]:border-blue-500/50">
+                            <input type="radio" name="status" value="plan to read" class="peer sr-only" />
+                            <div class="w-3.5 h-3.5 rounded-full border-2 border-white/20 peer-checked:border-blue-400 peer-checked:bg-blue-400 transition-all"></div>
+                            <span class="text-xs font-medium text-white/80 peer-checked:text-white">Plan to Read</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Sort Filter -->
+                <div class="space-y-2">
+                    <label class="text-[10px] uppercase tracking-widest text-white/40 font-bold ml-1">Sort by created Date</label>
+                    <div class="flex bg-white/5 p-1 rounded-lg border border-white/10">
+                        <label class="flex-1 text-center cursor-pointer">
+                            <input type="radio" name="sort" value="newest" checked class="peer sr-only" />
+                            <span class="block py-1.5 px-2 rounded-md text-[10px] font-bold text-white/60 transition-all peer-checked:bg-white/20 peer-checked:text-white peer-checked:shadow-sm">Newest</span>
+                        </label>
+                        <label class="flex-1 text-center cursor-pointer">
+                            <input type="radio" name="sort" value="oldest" class="peer sr-only" />
+                            <span class="block py-1.5 px-2 rounded-md text-[10px] font-bold text-white/60 transition-all peer-checked:bg-white/20 peer-checked:text-white peer-checked:shadow-sm">Oldest</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Books Grid -->
+    <div id="books-grid" class="flex flex-wrap gap-4 md:gap-6 items-start flex-1 order-2 lg:order-1">
 
     {
         books?.map((book) => {
-            const { id, title, author, cover_url, status } = book;
+            const { id, title, author, cover_url, status, created_at } = book;
 
             return (
-                <article class="flex flex-col items-start">
+                <article 
+                    class="book-item flex flex-col items-start transition-all duration-500"
+                    data-status={status}
+                    data-created={new Date(created_at).getTime()}
+                >
                     <a
                         href={`/books/${id}`}
-                        class="inline-block transitio   n-transform duration-300 hover:scale-105"
+                        class="inline-block transition-transform duration-300 hover:scale-105"
                     >
                         <img
                             transition:name={`img-${id}`}
@@ -53,7 +117,7 @@ if (error) {
 
     {
         books?.length === 0 && (
-            <div class="col-span-full text-center py-20 border-2 border-dashed border-white/10 rounded-3xl">
+            <div class="col-span-full text-center py-20 border-2 border-dashed border-white/10 rounded-3xl w-full">
                 <p class="text-gray-500">
                     No books in the shelf yet. Start by uploading one!
                 </p>
@@ -66,4 +130,50 @@ if (error) {
             </div>
         )
     }
+    </div>
 </div>
+
+<script>
+    const grid = document.getElementById('books-grid');
+    const statusInputs = document.querySelectorAll('input[name="status"]');
+    const sortInputs = document.querySelectorAll('input[name="sort"]');
+    
+    // Convert NodeList to Array for easier manipulation
+    let books = Array.from(document.querySelectorAll('.book-item')) as HTMLElement[];
+
+    function filterAndSortBooks() {
+        const selectedStatus = (document.querySelector('input[name="status"]:checked') as HTMLInputElement).value;
+        const selectedSort = (document.querySelector('input[name="sort"]:checked') as HTMLInputElement).value;
+
+        // Filter
+        books.forEach(book => {
+            const bookStatus = book.dataset.status;
+            if (selectedStatus === 'all' || bookStatus === selectedStatus) {
+                book.style.display = 'flex';
+                book.classList.remove('opacity-0', 'scale-95');
+                book.classList.add('opacity-100', 'scale-100');
+            } else {
+                book.style.display = 'none';
+                book.classList.remove('opacity-100', 'scale-100');
+                book.classList.add('opacity-0', 'scale-95');
+            }
+        });
+
+        // Sort
+        const visibleBooks = books.filter(book => book.style.display !== 'none');
+        
+        visibleBooks.sort((a, b) => {
+            const dateA = parseInt(a.dataset.created || '0');
+            const dateB = parseInt(b.dataset.created || '0');
+            
+            return selectedSort === 'newest' ? dateB - dateA : dateA - dateB;
+        });
+
+        // Re-append sorted books
+        visibleBooks.forEach(book => grid?.appendChild(book));
+    }
+
+    // Add event listeners
+    statusInputs.forEach(input => input.addEventListener('change', filterAndSortBooks));
+    sortInputs.forEach(input => input.addEventListener('change', filterAndSortBooks));
+</script>
