@@ -19,7 +19,6 @@ if (error) {
 
 <div class="flex flex-col lg:flex-row gap-4 relative items-start">
     
-    <!-- Filters Sidebar -->
     {books && books.length > 1 && (
     <aside class="w-full lg:w-56 shrink-0 lg:sticky lg:top-28 order-1 lg:order-2">
         <div class="bg-white/10 backdrop-blur-xl border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.3)] rounded-2xl p-4 text-white">
@@ -78,7 +77,6 @@ if (error) {
     </aside>
     )}
 
-    <!-- Books Grid -->
     <div id="books-grid" class="flex flex-wrap gap-4 md:gap-6 items-start flex-1 order-2 lg:order-1">
 
     {
@@ -186,13 +184,11 @@ if (error) {
 
             visibleBooks.forEach(book => grid?.appendChild(book));
 
-            // 4. FLIP Animation
             visibleBooks.forEach(book => {
                 const newRect = book.getBoundingClientRect();
                 const oldPos = positions.get(book);
 
                 if (oldPos) {
-                    // Item was already visible, animate from old position
                     const deltaX = oldPos.left - newRect.left;
                     const deltaY = oldPos.top - newRect.top;
 
@@ -201,14 +197,12 @@ if (error) {
                         book.style.transition = 'none';
                         
                         requestAnimationFrame(() => {
-                            // Force reflow
                             book.getBoundingClientRect(); 
                             book.style.transition = 'transform 500ms cubic-bezier(0.4, 0, 0.2, 1)';
                             book.style.transform = '';
                         });
                     }
                 } else {
-                    // Item is new (entering), animate fade in / scale up
                     book.style.opacity = '0';
                     book.style.transform = 'scale(0.9)';
                     book.style.transition = 'none';
@@ -223,7 +217,6 @@ if (error) {
             });
         }
 
-        // Add event listeners
         statusInputs.forEach(input => input.addEventListener('change', filterAndSortBooks));
         sortInputs.forEach(input => input.addEventListener('change', filterAndSortBooks));
     }

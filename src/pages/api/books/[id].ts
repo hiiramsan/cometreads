@@ -1,7 +1,6 @@
 import type { APIRoute } from "astro";
 import { supabase } from "../../../lib/supabase";
 
-// Helper to get user
 const getUser = async (cookies: any) => {
   const accessToken = cookies.get('sb-access-token');
   const refreshToken = cookies.get('sb-refresh-token');

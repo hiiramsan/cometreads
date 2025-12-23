@@ -22,7 +22,6 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
         const pagesStr = formData.get("pages")?.toString();
         const pages = pagesStr ? parseInt(pagesStr) : 0;
 
-        // Validaciones
         if (!title || title.length > 100) {
             return new Response(JSON.stringify({ error: "Title is required and must be less than 100 characters" }), { status: 400 });
         }
