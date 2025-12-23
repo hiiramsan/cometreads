@@ -20,6 +20,7 @@ if (error) {
 <div class="flex flex-col lg:flex-row gap-4 relative items-start">
     
     <!-- Filters Sidebar -->
+    {books && books.length > 1 && (
     <aside class="w-full lg:w-56 shrink-0 lg:sticky lg:top-28 order-1 lg:order-2">
         <div class="bg-white/10 backdrop-blur-xl border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.3)] rounded-2xl p-4 text-white">
             <h3 class="text-sm font-serif font-bold mb-3 flex items-center gap-2">
@@ -75,6 +76,7 @@ if (error) {
             </div>
         </div>
     </aside>
+    )}
 
     <!-- Books Grid -->
     <div id="books-grid" class="flex flex-wrap gap-4 md:gap-6 items-start flex-1 order-2 lg:order-1">
@@ -85,7 +87,7 @@ if (error) {
 
             return (
                 <article 
-                    class="book-item flex flex-col items-start transition-all duration-500"
+                    class="book-item flex flex-col items-start"
                     data-status={status}
                     data-created={new Date(created_at).getTime()}
                 >
@@ -134,46 +136,97 @@ if (error) {
 </div>
 
 <script>
-    const grid = document.getElementById('books-grid');
-    const statusInputs = document.querySelectorAll('input[name="status"]');
-    const sortInputs = document.querySelectorAll('input[name="sort"]');
-    
-    // Convert NodeList to Array for easier manipulation
-    let books = Array.from(document.querySelectorAll('.book-item')) as HTMLElement[];
+    function initBookshelf() {
+        const grid = document.getElementById('books-grid');
+        if (!grid) return;
 
-    function filterAndSortBooks() {
-        const selectedStatus = (document.querySelector('input[name="status"]:checked') as HTMLInputElement).value;
-        const selectedSort = (document.querySelector('input[name="sort"]:checked') as HTMLInputElement).value;
-
-        // Filter
-        books.forEach(book => {
-            const bookStatus = book.dataset.status;
-            if (selectedStatus === 'all' || bookStatus === selectedStatus) {
-                book.style.display = 'flex';
-                book.classList.remove('opacity-0', 'scale-95');
-                book.classList.add('opacity-100', 'scale-100');
-            } else {
-                book.style.display = 'none';
-                book.classList.remove('opacity-100', 'scale-100');
-                book.classList.add('opacity-0', 'scale-95');
-            }
-        });
-
-        // Sort
-        const visibleBooks = books.filter(book => book.style.display !== 'none');
+        const statusInputs = document.querySelectorAll('input[name="status"]');
+        const sortInputs = document.querySelectorAll('input[name="sort"]');
         
-        visibleBooks.sort((a, b) => {
-            const dateA = parseInt(a.dataset.created || '0');
-            const dateB = parseInt(b.dataset.created || '0');
-            
-            return selectedSort === 'newest' ? dateB - dateA : dateA - dateB;
-        });
+        let books = Array.from(document.querySelectorAll('.book-item')) as HTMLElement[];
 
-        // Re-append sorted books
-        visibleBooks.forEach(book => grid?.appendChild(book));
+        function filterAndSortBooks() {
+            const statusChecked = document.querySelector('input[name="status"]:checked') as HTMLInputElement;
+            const sortChecked = document.querySelector('input[name="sort"]:checked') as HTMLInputElement;
+
+            if (!statusChecked || !sortChecked) return;
+
+            const selectedStatus = statusChecked.value;
+            const selectedSort = sortChecked.value;
+
+            // 1. Record positions of currently visible items
+            const positions = new Map();
+            books.forEach(book => {
+                if (book.style.display !== 'none') {
+                    const rect = book.getBoundingClientRect();
+                    positions.set(book, { top: rect.top, left: rect.left });
+                }
+            });
+
+            // 2. Apply Filter (DOM changes)
+            books.forEach(book => {
+                const bookStatus = book.dataset.status;
+                const shouldShow = selectedStatus === 'all' || bookStatus === selectedStatus;
+                
+                if (shouldShow) {
+                    book.style.display = 'flex';
+                } else {
+                    book.style.display = 'none';
+                }
+            });
+
+            // 3. Sort and Re-append
+            const visibleBooks = books.filter(book => book.style.display !== 'none');
+            
+            visibleBooks.sort((a, b) => {
+                const dateA = parseInt(a.dataset.created || '0');
+                const dateB = parseInt(b.dataset.created || '0');
+                return selectedSort === 'newest' ? dateB - dateA : dateA - dateB;
+            });
+
+            visibleBooks.forEach(book => grid?.appendChild(book));
+
+            // 4. FLIP Animation
+            visibleBooks.forEach(book => {
+                const newRect = book.getBoundingClientRect();
+                const oldPos = positions.get(book);
+
+                if (oldPos) {
+                    // Item was already visible, animate from old position
+                    const deltaX = oldPos.left - newRect.left;
+                    const deltaY = oldPos.top - newRect.top;
+
+                    if (deltaX !== 0 || deltaY !== 0) {
+                        book.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+                        book.style.transition = 'none';
+                        
+                        requestAnimationFrame(() => {
+                            // Force reflow
+                            book.getBoundingClientRect(); 
+                            book.style.transition = 'transform 500ms cubic-bezier(0.4, 0, 0.2, 1)';
+                            book.style.transform = '';
+                        });
+                    }
+                } else {
+                    // Item is new (entering), animate fade in / scale up
+                    book.style.opacity = '0';
+                    book.style.transform = 'scale(0.9)';
+                    book.style.transition = 'none';
+                    
+                    requestAnimationFrame(() => {
+                        book.getBoundingClientRect();
+                        book.style.transition = 'opacity 500ms ease, transform 500ms cubic-bezier(0.4, 0, 0.2, 1)';
+                        book.style.opacity = '1';
+                        book.style.transform = '';
+                    });
+                }
+            });
+        }
+
+        // Add event listeners
+        statusInputs.forEach(input => input.addEventListener('change', filterAndSortBooks));
+        sortInputs.forEach(input => input.addEventListener('change', filterAndSortBooks));
     }
 
-    // Add event listeners
-    statusInputs.forEach(input => input.addEventListener('change', filterAndSortBooks));
-    sortInputs.forEach(input => input.addEventListener('change', filterAndSortBooks));
+    document.addEventListener('astro:page-load', initBookshelf);
 </script>
