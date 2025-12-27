@@ -28,8 +28,8 @@ export const GET: APIRoute = async ({ url, cookies, redirect }) => {
     maxAge: ONE_MONTH,
   };
 
-  cookies.set("sb-access-token", access_token, { path: "/", httpOnly: true, secure: true });
-  cookies.set("sb-refresh-token", refresh_token, { path: "/", httpOnly: true, secure: true });
+  cookies.set("sb-access-token", access_token, cookieOptions);
+  cookies.set("sb-refresh-token", refresh_token, cookieOptions);
 
   return redirect("/books"); 
 };
