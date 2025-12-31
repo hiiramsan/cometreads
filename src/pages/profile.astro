@@ -1,0 +1,101 @@
+---
+import LayoutApp from "../layouts/LayoutApp.astro";
+import { supabase } from "../lib/supabase";
+
+const accessToken = Astro.cookies.get("sb-access-token");
+let user = null;
+
+if (accessToken) {
+  const { data, error } = await supabase.auth.getUser(accessToken.value);
+  if (data.user) {
+    user = data.user;
+  }
+}
+
+if (!user) {
+  return Astro.redirect("/login");
+}
+
+const avatarUrl = user.user_metadata?.avatar_url || user.user_metadata?.picture || "https://ui-avatars.com/api/?name=" + (user.email || "User");
+const userName = user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || "Usuario";
+const email = user.email;
+
+const { data: books, error } = await supabase
+  .from('books')
+  .select('status')
+  .eq('user_id', user.id);
+
+const stats = {
+  total: 0,
+  reading: 0,
+  completed: 0,
+  plan_to_read: 0,
+  dropped: 0
+};
+
+if (books) {
+  stats.total = books.length;
+  books.forEach(book => {
+    const status = book.status?.toLowerCase();
+    if (status === 'reading') stats.reading++;
+    else if (status === 'completed') stats.completed++;
+    else if (status === 'plan to read') stats.plan_to_read++;
+    else if (status === 'dropped') stats.dropped++;
+  });
+}
+---
+
+<LayoutApp title="My profile">
+  <div class="max-w-4xl mx-auto px-4 py-12">
+    <div class="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-8 shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
+      <div class="flex flex-col md:flex-row items-center gap-8">
+        <div class="relative group">
+            <div class="absolute -inset-0.5 bg-gradient-to-r from-blue-400 to-blue-800 rounded-full opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 blur"></div>
+            <img 
+            src={avatarUrl} 
+            alt={userName} 
+            class="relative w-24 h-24 rounded-full border-4 border-black/50 shadow-xl object-cover"
+            />
+        </div>
+        
+        <div class="text-center md:text-left flex-1">
+          <h1 class="text-3xl font-bold text-white mb-2 tracking-tight">{userName}</h1>
+          <p class="text-white/60 text-lg mb-6 font-light">{email}</p>
+          
+          <div class="flex gap-4 justify-center md:justify-start">
+             <a 
+              href="/api/auth/signout" 
+              class="px-6 py-2 rounded-full bg-red-500/10 hover:bg-red-500/20 text-red-200 border border-red-500/20 transition-all backdrop-blur-md"
+            >
+              Log out
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-12 border-t border-white/10 pt-8">
+        <h2 class="text-xl font-semibold text-white mb-6 flex items-center gap-2">
+            Stats
+        </h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="bg-black/20 rounded-xl p-4 border border-white/5 hover:border-white/10 transition-colors text-center">
+                <p class="text-3xl font-bold text-white mb-1">{stats.total}</p>
+                <p class="text-white/40 text-xs uppercase tracking-wider">Books</p>
+            </div>
+            <div class="bg-black/20 rounded-xl p-4 border border-white/5 hover:border-white/10 transition-colors text-center">
+                <p class="text-3xl font-bold text-white mb-1">{stats.completed}</p>
+                <p class="text-white/40 text-xs uppercase tracking-wider">Completed</p>
+            </div>
+            <div class="bg-black/20 rounded-xl p-4 border border-white/5 hover:border-white/10 transition-colors text-center">
+                <p class="text-3xl font-bold text-white mb-1">{stats.reading}</p>
+                <p class="text-white/40 text-xs uppercase tracking-wider">Reading</p>
+            </div>
+            <div class="bg-black/20 rounded-xl p-4 border border-white/5 hover:border-white/10 transition-colors text-center">
+                <p class="text-3xl font-bold text-white mb-1">{stats.plan_to_read}</p>
+                <p class="text-white/40 text-xs uppercase tracking-wider">Plan to read</p>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</LayoutApp>

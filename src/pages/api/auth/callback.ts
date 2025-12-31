@@ -6,8 +6,6 @@ const ONE_MONTH = 60 * 60 * 24 * 30;
 export const GET: APIRoute = async ({ url, cookies, redirect }) => {
   const authCode = url.searchParams.get("code");
 
-  
-
   if (!authCode) {
     return redirect("/login?error=no_code");
   }

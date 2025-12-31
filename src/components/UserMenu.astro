@@ -1,0 +1,130 @@
+---
+import { supabase } from "../lib/supabase";
+
+const accessToken = Astro.cookies.get("sb-access-token");
+let user = null;
+
+if (accessToken) {
+  const { data, error } = await supabase.auth.getUser(accessToken.value);
+  if (data.user) {
+    user = data.user;
+  }
+}
+
+if (!user) {
+  return;
+}
+
+const avatarUrl = user.user_metadata?.avatar_url || user.user_metadata?.picture || "https://ui-avatars.com/api/?name=" + (user.email || "User");
+const userName = user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || "Usuario";
+---
+
+<div class="fixed top-6 right-6 z-50 flex flex-col items-end pointer-events-none" id="user-menu-container">
+  <div class="relative group pointer-events-auto">
+    <div 
+      class="absolute right-full mr-3 top-1/2 -translate-y-1/2 
+             px-3 py-1 rounded-lg 
+             bg-black/80 text-white text-sm whitespace-nowrap
+             opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none
+             backdrop-blur-sm border border-white/10"
+    >
+      {userName}
+    </div>
+
+    <button 
+      id="user-menu-button"
+      class="relative block w-10 h-10 rounded-full overflow-hidden 
+             border-2 border-white/20 hover:border-white/50 
+             transition-all duration-300 
+             shadow-[0_8px_32px_rgba(0,0,0,0.3)]
+             focus:outline-none focus:ring-2 focus:ring-white/30 cursor-pointer"
+    >
+      <img 
+        src={avatarUrl} 
+        alt={userName} 
+        class="w-full h-full object-cover"
+      />
+    </button>
+  </div>
+
+  <div 
+    id="user-menu-dropdown"
+    class="hidden absolute top-14 right-0 w-48 
+           bg-white/10 backdrop-blur-xl backdrop-saturate-150
+           border border-white/20 rounded-xl 
+           shadow-[0_8px_32px_rgba(0,0,0,0.3)] overflow-hidden
+           transform origin-top-right transition-all duration-200
+           opacity-0 scale-95
+           pointer-events-auto"
+  >
+    <div class="p-4 border-b border-white/10">
+      <p class="text-white font-medium truncate">{userName}</p>
+      <p class="text-white/50 text-xs truncate">{user.email}</p>
+    </div>
+    <div class="py-1">
+      <a 
+        href="/profile" 
+        class="block px-4 py-2 text-sm text-white/80 hover:bg-white/10 hover:text-white transition-colors"
+      >
+        Profile
+      </a>
+      <a 
+        href="/api/auth/signout" 
+        class="block px-4 py-2 text-sm text-red-400 hover:bg-white/10 hover:text-red-300 transition-colors"
+      >
+        Log out
+      </a>
+    </div>
+  </div>
+</div>
+
+<script>
+  function setupUserMenu() {
+    const button = document.getElementById('user-menu-button');
+    const dropdown = document.getElementById('user-menu-dropdown');
+    const container = document.getElementById('user-menu-container');
+
+    if (button && dropdown && container) {
+      // Limpiar listeners anteriores si existen (para evitar duplicados en navegaciones SPA si el elemento persiste)
+      // En este caso, como el DOM se reemplaza, no es estrictamente necesario, pero es buena práctica.
+      
+      const toggleMenu = (e: MouseEvent) => {
+        e.stopPropagation();
+        const isHidden = dropdown.classList.contains('hidden');
+        if (isHidden) {
+          dropdown.classList.remove('hidden');
+          dropdown.classList.add('opacity-100', 'scale-100');
+          dropdown.classList.remove('opacity-0', 'scale-95');
+        } else {
+          closeMenu();
+        }
+      };
+
+      const closeMenu = () => {
+        if (!dropdown.classList.contains('hidden')) {
+          dropdown.classList.add('hidden');
+          dropdown.classList.remove('opacity-100', 'scale-100');
+          dropdown.classList.add('opacity-0', 'scale-95');
+        }
+      };
+
+      const handleClickOutside = (e: MouseEvent) => {
+        if (!container.contains(e.target as Node)) {
+          closeMenu();
+        }
+      };
+
+      const handleEscape = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') {
+          closeMenu();
+        }
+      };
+
+      button.addEventListener('click', toggleMenu);
+      document.addEventListener('click', handleClickOutside);
+      document.addEventListener('keydown', handleEscape);
+    }
+  }
+
+  document.addEventListener('astro:page-load', setupUserMenu);
+</script>

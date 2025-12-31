@@ -2,9 +2,9 @@
 const { pathname } = Astro.url;
 
 const navLinks = [
-  { name: "books", href: "/books" },
-  { name: "timeline", href: "/timeline" },
-  { name: "upload", href: "/upload" },
+  { name: "Books", href: "/books" },
+  { name: "Timeline", href: "/timeline" },
+  { name: "Upload", href: "/upload" },
 ];
 
 const isActive = (path: string) => {
@@ -17,7 +17,7 @@ const isActive = (path: string) => {
 <header class="fixed top-6 left-0 w-full z-50 flex justify-center px-4">
   <nav
     class="flex gap-4 items-center
-           px-6 py-3
+           px-3 py-3
            rounded-full
            bg-white/10 backdrop-blur-xl
            border border-white/20
@@ -25,7 +25,7 @@ const isActive = (path: string) => {
            text-white"
   >
     <a href="/books">
-      <img src="/logo.png" alt="hibookshelf logo" class="w-20 h-auto" />
+      <img src="/circle-tabicon.png" alt="hibookshelf logo" class="w-10 h-auto border border-white/20 rounded-full" />
     </a>
     {
       navLinks.map((link) => (
@@ -42,12 +42,5 @@ const isActive = (path: string) => {
         </a>
       ))
     }
-    <a
-      href="/api/auth/signout"
-      class="p-2 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 transition-all duration-300"
-      aria-label="Logout"
-    >
-      <img src="/logout.svg" alt="Logout" class="w-6 h-6 invert" />
-    </a>
   </nav>
 </header>

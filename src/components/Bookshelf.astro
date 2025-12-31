@@ -7,9 +7,16 @@ if (!accessToken) {
     throw Astro.redirect("/login");
 }
 
+const { data: { user }, error: authError } = await supabase.auth.getUser(accessToken.value);
+
+if (authError || !user) {
+    throw Astro.redirect("/login");
+}
+
 const { data: books, error } = await supabase
     .from("books")
     .select("*")
+    .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
 if (error) {
@@ -28,7 +35,6 @@ if (error) {
             </h3>
 
             <div class="space-y-6">
-                <!-- Status Filter -->
                 <div class="space-y-2">
                     <label class="text-[10px] uppercase tracking-widest text-white/40 font-bold ml-1">Status</label>
                     <div class="flex flex-col gap-1.5">
@@ -58,7 +64,6 @@ if (error) {
                     </div>
                 </div>
 
-                <!-- Sort Filter -->
                 <div class="space-y-2">
                     <label class="text-[10px] uppercase tracking-widest text-white/40 font-bold ml-1">Sort by created Date</label>
                     <div class="flex bg-white/5 p-1 rounded-lg border border-white/10">
@@ -77,7 +82,7 @@ if (error) {
     </aside>
     )}
 
-    <div id="books-grid" class="flex flex-wrap gap-4 md:gap-6 items-start flex-1 order-2 lg:order-1">
+    <div id="books-grid" class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-10 flex-1 order-2 lg:order-1 w-full">
 
     {
         books?.map((book) => {
@@ -85,27 +90,27 @@ if (error) {
 
             return (
                 <article 
-                    class="book-item flex flex-col items-start"
+                    class="book-item flex flex-col items-start w-full group"
                     data-status={status}
                     data-created={new Date(created_at).getTime()}
                 >
                     <a
                         href={`/books/${id}`}
-                        class="inline-block transition-transform duration-300 hover:scale-105"
+                        class="block w-full transition-transform duration-300 hover:scale-105"
                     >
                         <img
                             transition:name={`img-${id}`}
                             src={cover_url || "/placeholder-book.jpg"}
                             alt={title}
-                            class="w-auto h-64 aspect-2/3 object-cover rounded-lg shadow-lg border border-white/10"
+                            class="w-full aspect-[2/3] object-cover rounded-lg shadow-lg border border-white/10"
                         />
 
-                        <div class="flex flex-col gap-2 mt-3">
-                            <h3 class="text-lg font-md font-serif leading-tight text-white transition">
+                        <div class="flex flex-col gap-2 mt-3 w-full">
+                            <h3 class="text-lg font-serif leading-tight text-white line-clamp-2 wrap-break-word min-h-2">
                                 {title}
                             </h3>
-                            <p class="text-sm text-gray-400 ">{author}</p>
-                            <span class="inline-block w-fit text-[10px] bg-white/10 px-2 py-2 rounded text-gray-400 uppercase tracking-wider">
+                            <p class="text-sm text-gray-400 truncate w-full">{author}</p>
+                            <span class="inline-block w-fit text-[10px] bg-white/10 px-2 py-1 rounded text-gray-400 uppercase tracking-wider">
                                 {status}
                             </span>
                         </div>
@@ -141,9 +146,8 @@ if (error) {
         const statusInputs = document.querySelectorAll('input[name="status"]');
         const sortInputs = document.querySelectorAll('input[name="sort"]');
         
-        let books = Array.from(document.querySelectorAll('.book-item')) as HTMLElement[];
-
         function filterAndSortBooks() {
+            let books = Array.from(document.querySelectorAll('.book-item')) as HTMLElement[];
             const statusChecked = document.querySelector('input[name="status"]:checked') as HTMLInputElement;
             const sortChecked = document.querySelector('input[name="sort"]:checked') as HTMLInputElement;
 
@@ -152,7 +156,6 @@ if (error) {
             const selectedStatus = statusChecked.value;
             const selectedSort = sortChecked.value;
 
-            // 1. Record positions of currently visible items
             const positions = new Map();
             books.forEach(book => {
                 if (book.style.display !== 'none') {
@@ -161,19 +164,12 @@ if (error) {
                 }
             });
 
-            // 2. Apply Filter (DOM changes)
             books.forEach(book => {
                 const bookStatus = book.dataset.status;
                 const shouldShow = selectedStatus === 'all' || bookStatus === selectedStatus;
-                
-                if (shouldShow) {
-                    book.style.display = 'flex';
-                } else {
-                    book.style.display = 'none';
-                }
+                book.style.display = shouldShow ? 'flex' : 'none';
             });
 
-            // 3. Sort and Re-append
             const visibleBooks = books.filter(book => book.style.display !== 'none');
             
             visibleBooks.sort((a, b) => {
@@ -185,34 +181,21 @@ if (error) {
             visibleBooks.forEach(book => grid?.appendChild(book));
 
             visibleBooks.forEach(book => {
-                const newRect = book.getBoundingClientRect();
                 const oldPos = positions.get(book);
-
                 if (oldPos) {
+                    const newRect = book.getBoundingClientRect();
                     const deltaX = oldPos.left - newRect.left;
                     const deltaY = oldPos.top - newRect.top;
 
                     if (deltaX !== 0 || deltaY !== 0) {
-                        book.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
-                        book.style.transition = 'none';
-                        
-                        requestAnimationFrame(() => {
-                            book.getBoundingClientRect(); 
-                            book.style.transition = 'transform 500ms cubic-bezier(0.4, 0, 0.2, 1)';
-                            book.style.transform = '';
+                        book.animate([
+                            { transform: `translate(${deltaX}px, ${deltaY}px)` },
+                            { transform: 'none' }
+                        ], {
+                            duration: 500,
+                            easing: 'cubic-bezier(0.4, 0, 0.2, 1)'
                         });
                     }
-                } else {
-                    book.style.opacity = '0';
-                    book.style.transform = 'scale(0.9)';
-                    book.style.transition = 'none';
-                    
-                    requestAnimationFrame(() => {
-                        book.getBoundingClientRect();
-                        book.style.transition = 'opacity 500ms ease, transform 500ms cubic-bezier(0.4, 0, 0.2, 1)';
-                        book.style.opacity = '1';
-                        book.style.transform = '';
-                    });
                 }
             });
         }

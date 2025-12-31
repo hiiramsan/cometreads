@@ -1,12 +1,13 @@
 ---
 import Navbar from "../components/Navbar.astro";
+import UserMenu from "../components/UserMenu.astro";
 import "../styles/global.css";
 import { ClientRouter } from "astro:transitions";
 import '@fontsource/dm-serif-text';
 
 const accessToken = Astro.cookies.get("sb-access-token");
 if (!accessToken) {
-	return Astro.redirect("/login");
+	throw Astro.redirect("/login");
 }
 ---
 
@@ -30,6 +31,7 @@ if (!accessToken) {
 		>
 		</div>
 		<Navbar />
+		<UserMenu />
 		<main class="relative z-10 pt-28">
 			<slot />
 		</main>
