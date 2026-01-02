@@ -1,22 +1,12 @@
 ---
 import { supabase } from "../lib/supabase";
 
-const accessToken = Astro.cookies.get("sb-access-token");
-
-if (!accessToken) {
-    throw Astro.redirect("/login");
-}
-
-const { data: { user }, error: authError } = await supabase.auth.getUser(accessToken.value);
-
-if (authError || !user) {
-    throw Astro.redirect("/login");
-}
+const user = Astro.locals.user;
 
 const { data: books, error } = await supabase
     .from("books")
     .select("*")
-    .eq("user_id", user.id)
+    .eq("user_id", user?.id)
     .order("created_at", { ascending: false });
 
 if (error) {
@@ -28,13 +18,16 @@ if (error) {
     
     {books && books.length > 1 && (
     <aside class="w-full lg:w-56 shrink-0 lg:sticky lg:top-28 order-1 lg:order-2">
-        <div class="bg-white/10 backdrop-blur-xl border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.3)] rounded-2xl p-4 text-white">
-            <h3 class="text-sm font-serif font-bold mb-3 flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-white/60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
-                Filters
-            </h3>
+        <div class="bg-white/10 backdrop-blur-xl border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.3)] rounded-2xl p-4 text-white transition-all duration-300" id="filters-container">
+            <button id="filters-header" class="w-full text-left text-sm font-serif font-bold flex items-center justify-between lg:justify-start gap-2 lg:mb-3 cursor-pointer">
+                <div class="flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-white/60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+                    Filters
+                </div>
+                <svg id="filters-chevron" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-white/60 lg:hidden transition-transform duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </button>
 
-            <div class="space-y-6">
+            <div id="filters-content" class="hidden lg:block space-y-6 mt-4 lg:mt-0">
                 <div class="space-y-2">
                     <label class="text-[10px] uppercase tracking-widest text-white/40 font-bold ml-1">Status</label>
                     <div class="flex flex-col gap-1.5">
@@ -102,7 +95,7 @@ if (error) {
                             transition:name={`img-${id}`}
                             src={cover_url || "/placeholder-book.jpg"}
                             alt={title}
-                            class="w-full aspect-[2/3] object-cover rounded-lg shadow-lg border border-white/10"
+                            class="w-full aspect-2/3 object-cover rounded-lg shadow-lg border border-white/10"
                         />
 
                         <div class="flex flex-col gap-2 mt-3 w-full">
@@ -202,6 +195,19 @@ if (error) {
 
         statusInputs.forEach(input => input.addEventListener('change', filterAndSortBooks));
         sortInputs.forEach(input => input.addEventListener('change', filterAndSortBooks));
+
+        const filtersHeader = document.getElementById('filters-header');
+        const filtersContent = document.getElementById('filters-content');
+        const filtersChevron = document.getElementById('filters-chevron');
+
+        if (filtersHeader && filtersContent && filtersChevron) {
+            filtersHeader.addEventListener('click', () => {
+                if (window.innerWidth < 1024) {
+                    filtersContent.classList.toggle('hidden');
+                    filtersChevron.classList.toggle('rotate-180');
+                }
+            });
+        }
     }
 
     document.addEventListener('astro:page-load', initBookshelf);

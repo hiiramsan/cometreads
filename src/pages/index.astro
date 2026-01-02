@@ -12,16 +12,16 @@ if (accessToken && refreshToken) {
 
 <LayoutPublic title="CometReads">
 	<div
-		class="min-h-screen w-full relative flex flex-col items-center gap-6 pt-16"
+		class="min-h-screen w-full relative flex flex-col items-center gap-6 pt-16 px-4"
 	>
 		<img src="logo.png" alt="logo" class="w-42 h-auto" />
-		<p class="text-white font-serif text-5xl pt-12">
+		<p class="text-white font-serif text-3xl md:text-5xl pt-12 text-center">
 			A pleasant space to track your <span
 				class="underline decoration-blue-500 underline-offset-4 decoration-2 decoration-wavy"
 				>reading</span
 			>
 		</p>
-		<p class="text-white text-xl font-thin">
+		<p class="text-white text-xl font-thin text-center">
 			What you're reading. What you've finished. What you want to read
 		</p>
 		<a
@@ -51,17 +51,17 @@ if (accessToken && refreshToken) {
 					class="fill-gray-800"></path>
 			</svg>
 		</a>
-
-		<script
-			src="https://unpkg.com/@lottiefiles/dotlottie-wc@0.8.11/dist/dotlottie-wc.js"
-			type="module"></script>;
 		<dotlottie-wc
 			src="https://lottie.host/36bb1cf3-f50d-4041-bb1b-0114dd6e1919/Oa45AHNvlF.lottie"
 			style="width: 220px;height: 220px"
 			autoplay
 			loop></dotlottie-wc>
-		<div class="text-white fixed bottom-10">
+		<div class="text-white text-center">
 			Built by <a href="https:hiramsanchez.vercel.app" target="_blank" class="underline">@hiiramsan</a> with hate
 		</div>
 	</div>
 </LayoutPublic>
+
+<script
+			src="https://unpkg.com/@lottiefiles/dotlottie-wc@0.8.11/dist/dotlottie-wc.js"
+			type="module"></script>;

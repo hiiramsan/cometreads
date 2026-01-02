@@ -1,25 +1,17 @@
 ---
 import { supabase } from "../lib/supabase";
 
-const accessToken = Astro.cookies.get("sb-access-token");
-let user = null;
-
-if (accessToken) {
-  const { data, error } = await supabase.auth.getUser(accessToken.value);
-  if (data.user) {
-    user = data.user;
-  }
-}
+const user = Astro.locals.user;
 
 if (!user) {
   return;
 }
 
 const avatarUrl = user.user_metadata?.avatar_url || user.user_metadata?.picture || "https://ui-avatars.com/api/?name=" + (user.email || "User");
-const userName = user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || "Usuario";
+const userName = user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || "user";
 ---
 
-<div class="fixed top-6 right-6 z-50 flex flex-col items-end pointer-events-none" id="user-menu-container">
+<div class="flex flex-col items-end pointer-events-none" id="user-menu-container">
   <div class="relative group pointer-events-auto">
     <div 
       class="absolute right-full mr-3 top-1/2 -translate-y-1/2 
@@ -33,11 +25,11 @@ const userName = user.user_metadata?.full_name || user.user_metadata?.name || us
 
     <button 
       id="user-menu-button"
-      class="relative block w-10 h-10 rounded-full overflow-hidden 
+      class="block w-16 h-16 md:w-12 md:h-12 rounded-full overflow-hidden cursor-pointer
              border-2 border-white/20 hover:border-white/50 
              transition-all duration-300 
              shadow-[0_8px_32px_rgba(0,0,0,0.3)]
-             focus:outline-none focus:ring-2 focus:ring-white/30 cursor-pointer"
+             focus:outline-none focus:ring-2 focus:ring-white/30"
     >
       <img 
         src={avatarUrl} 
@@ -45,35 +37,35 @@ const userName = user.user_metadata?.full_name || user.user_metadata?.name || us
         class="w-full h-full object-cover"
       />
     </button>
-  </div>
 
-  <div 
-    id="user-menu-dropdown"
-    class="hidden absolute top-14 right-0 w-48 
-           bg-white/10 backdrop-blur-xl backdrop-saturate-150
-           border border-white/20 rounded-xl 
-           shadow-[0_8px_32px_rgba(0,0,0,0.3)] overflow-hidden
-           transform origin-top-right transition-all duration-200
-           opacity-0 scale-95
-           pointer-events-auto"
-  >
-    <div class="p-4 border-b border-white/10">
-      <p class="text-white font-medium truncate">{userName}</p>
-      <p class="text-white/50 text-xs truncate">{user.email}</p>
-    </div>
-    <div class="py-1">
-      <a 
-        href="/profile" 
-        class="block px-4 py-2 text-sm text-white/80 hover:bg-white/10 hover:text-white transition-colors"
-      >
-        Profile
-      </a>
-      <a 
-        href="/api/auth/signout" 
-        class="block px-4 py-2 text-sm text-red-400 hover:bg-white/10 hover:text-red-300 transition-colors"
-      >
-        Log out
-      </a>
+    <div 
+      id="user-menu-dropdown"
+      class="hidden absolute top-full mt-2 right-0 w-48 
+             bg-white/10 backdrop-blur-xl backdrop-saturate-150
+             border border-white/20 rounded-xl 
+             shadow-[0_8px_32px_rgba(0,0,0,0.3)] overflow-hidden
+             transform origin-top-right transition-all duration-200
+             opacity-0 scale-95
+             pointer-events-auto z-50"
+    >
+      <div class="p-4 border-b border-white/10">
+        <p class="text-white font-medium truncate">{userName}</p>
+        <p class="text-white/50 text-xs truncate">{user.email}</p>
+      </div>
+      <div class="py-1">
+        <a 
+          href="/profile" 
+          class="block px-4 py-2 text-sm text-white/80 hover:bg-white/10 hover:text-white transition-colors"
+        >
+          Profile
+        </a>
+        <a 
+          href="/api/auth/signout" 
+          class="block px-4 py-2 text-sm text-red-400 hover:bg-white/10 hover:text-red-300 transition-colors"
+        >
+          Log out
+        </a>
+      </div>
     </div>
   </div>
 </div>
@@ -85,9 +77,6 @@ const userName = user.user_metadata?.full_name || user.user_metadata?.name || us
     const container = document.getElementById('user-menu-container');
 
     if (button && dropdown && container) {
-      // Limpiar listeners anteriores si existen (para evitar duplicados en navegaciones SPA si el elemento persiste)
-      // En este caso, como el DOM se reemplaza, no es estrictamente necesario, pero es buena práctica.
-      
       const toggleMenu = (e: MouseEvent) => {
         e.stopPropagation();
         const isHidden = dropdown.classList.contains('hidden');
