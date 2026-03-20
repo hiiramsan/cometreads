@@ -14,31 +14,35 @@ const isActive = (path: string) => {
 };
 ---
 
-  <nav
-    class="flex gap-4 items-center
+<nav
+  class="flex gap-4 items-center
            px-3 py-3
            rounded-full
            bg-white/10 backdrop-blur-xl
            border border-white/20
            shadow-[0_8px_32px_rgba(0,0,0,0.3)]
            text-white"
-  >
-    <a href="/books">
-      <img src="/circle-tabicon.png" alt="hibookshelf logo" class="w-10 h-auto border border-white/20 rounded-full" />
-    </a>
-    {
-      navLinks.map((link) => (
-        <a
-          href={link.href}
-          class={`px-4 py-1 rounded-full transition-all duration-300 text-sm font-medium
+>
+  <a href="/books">
+    <img
+      src="/circle-tabicon.png"
+      alt="hibookshelf logo"
+      class="w-10 h-auto border border-white/20 rounded-full"
+    />
+  </a>
+  {
+    navLinks.map((link) => (
+      <a
+        href={link.href}
+        class={`px-4 py-1 rounded-full transition-all duration-300 text-sm font-medium
           ${
             isActive(link.href)
               ? "bg-white/20 text-white shadow-inner"
               : "text-white/60 hover:text-white hover:bg-white/5"
           }`}
-        >
-          {link.name}
-        </a>
-      ))
-    }
-  </nav>
+      >
+        {link.name}
+      </a>
+    ))
+  }
+</nav>

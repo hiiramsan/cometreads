@@ -15,12 +15,11 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
         if (authError || !user) return redirect("/login");
 
         // 2. logica de insertar libro
-        const formData = await request.formData();
+        const body = await request.json();
 
-        const title = formData.get("title")?.toString().trim();
-        const author = formData.get("author")?.toString().trim();
-        const pagesStr = formData.get("pages")?.toString();
-        const pages = pagesStr ? parseInt(pagesStr) : 0;
+        const title = body.title?.toString().trim();
+        const author = body.author?.toString().trim();
+        const pages = body.pages ? parseInt(body.pages) : 0;
 
         if (!title || title.length > 100) {
             return new Response(JSON.stringify({ error: "Title is required and must be less than 100 characters" }), { status: 400 });
@@ -29,19 +28,19 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
             return new Response(JSON.stringify({ error: "Author is required and must be less than 50 characters" }), { status: 400 });
         }
         if (pages < 0) {
-             return new Response(JSON.stringify({ error: "Pages cannot be negative" }), { status: 400 });
+            return new Response(JSON.stringify({ error: "Pages cannot be negative" }), { status: 400 });
         }
 
         const payload = {
             title,
             user_id: user.id,
             author,
-            cover_url: formData.get("img"),
+            cover_url: body.img,
             pages,
-            review: formData.get("review"),
-            start_date: formData.get("startDate") || null,
-            end_date: formData.get("endDate") || null,
-            status: formData.get("status"),
+            review: body.review,
+            start_date: body.startDate || null,
+            end_date: body.endDate || null,
+            status: body.status,
         };
 
         const { data, error } = await supabase
@@ -58,7 +57,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
             }), { status: 400 });
         }
 
-        return redirect("/books");
+        return new Response(JSON.stringify({ success: true }), { status: 200 })
 
     } catch (err) {
         console.error("Error crítico en el servidor:", err);
