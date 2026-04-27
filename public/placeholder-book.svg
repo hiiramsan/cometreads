@@ -1,0 +1,38 @@
+<svg viewBox="0 0 300 450" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="300" height="450" fill="#1a1a2e"/>
+  
+  <!-- Book spine gradient -->
+  <defs>
+    <linearGradient id="bookGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#16213e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0f3460;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="accentGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#e94560;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#b91f4a;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Book cover -->
+  <rect x="10" y="10" width="280" height="430" rx="8" fill="url(#bookGradient)" stroke="#4a4a6a" stroke-width="1"/>
+  
+  <!-- Accent stripe -->
+  <rect x="10" y="10" width="280" height="80" rx="8" fill="url(#accentGradient)"/>
+  
+  <!-- Book icon -->
+  <g transform="translate(150, 140)">
+    <!-- Pages -->
+    <path d="M -30 -40 L -30 50 Q 0 60 30 50 L 30 -40 Z" fill="none" stroke="#ffffff" stroke-width="2" opacity="0.6"/>
+    <path d="M -20 -35 L -20 45 Q 0 53 20 45 L 20 -35" fill="none" stroke="#ffffff" stroke-width="2" opacity="0.8"/>
+    <path d="M -10 -30 L -10 40 Q 0 47 10 40 L 10 -30" fill="none" stroke="#ffffff" stroke-width="2"/>
+  </g>
+  
+  <!-- Text placeholder -->
+  <rect x="30" y="280" width="240" height="8" rx="4" fill="#ffffff" opacity="0.2"/>
+  <rect x="30" y="300" width="220" height="6" rx="3" fill="#ffffff" opacity="0.15"/>
+  <rect x="30" y="320" width="200" height="6" rx="3" fill="#ffffff" opacity="0.15"/>
+  
+  <!-- Corner accent -->
+  <circle cx="275" cy="35" r="15" fill="#e94560" opacity="0.3"/>
+</svg>

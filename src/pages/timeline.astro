@@ -72,9 +72,10 @@ const formatDate = (dateString: string) => {
                 <div class="flex gap-6">
                   <img 
                     transition:name={`img-${book.id}`}
-                    src={book.cover_url} 
+                    src={book.cover_url || "/placeholder-book.svg"} 
                     alt={book.title} 
                     class="w-20 h-28 object-cover rounded-lg shadow-lg group-hover:scale-105 transition-transform"
+                    onerror="this.src='/placeholder-book.svg'"
                   />
                   <div>
                     <h3 class="text-xl font-bold text-white mb-1 group-hover:text-blue-400 transition-colors">

@@ -48,12 +48,13 @@ const {
         <div class="relative group">
           <img
             transition:name={`img-${id}`}
-            src={cover_url || "/placeholder.svg"}
+            src={cover_url || "/placeholder-book.svg"}
             alt={title}
             class="rounded-2xl w-full h-auto object-cover
                    border border-white/20
                    shadow-[0_0_50px_rgba(255,255,255,0.15)]
                    transition-transform duration-500 group-hover:scale-[1.02]"
+            onerror="this.src='/placeholder-book.svg'"
           />
         </div>
 
