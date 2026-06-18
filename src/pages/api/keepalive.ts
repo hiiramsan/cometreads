@@ -1,10 +1,5 @@
 import type { APIRoute } from 'astro';
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-  import.meta.env.SUPABASE_URL,
-  import.meta.env.SUPABASE_KEY
-);
+import { supabase } from '../../lib/supabase';
 
 export const GET: APIRoute = async () => {
   try {

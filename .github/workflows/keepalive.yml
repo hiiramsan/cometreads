@@ -13,4 +13,4 @@ jobs:
     steps:
       - name: Ping keepalive endpoint
         run: |
-          curl -f https://tu-app.com/api/keepalive
+          curl -f https://cometreads.vercel.app/api/keepalive

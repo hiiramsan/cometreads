@@ -445,6 +445,12 @@ const {
   const modalStartDate = document.getElementById("modal-start-date");
   const modalEndDate = document.getElementById("modal-end-date");
 
+  const getLocalDateString = () => {
+    const now = new Date();
+    const local = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
+    return local.toISOString().split("T")[0];
+  };
+
   function openModal() {
     modal?.classList.remove("hidden");
     modal?.classList.add("flex");
@@ -466,14 +472,14 @@ const {
   });
 
   quickStartBtn?.addEventListener("click", () => {
-    const today = new Date().toISOString().split("T")[0];
+    const today = getLocalDateString();
     modalStatus.value = "reading";
     modalStartDate.value = today;
     openModal();
   });
 
   quickCompleteBtn?.addEventListener("click", async () => {
-    const today = new Date().toISOString().split("T")[0];
+    const today = getLocalDateString();
 
     try {
       const formData = new FormData();
